@@ -19,7 +19,7 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 def get_engine(schema: str = "raw") -> Engine:
     """Return a SQLAlchemy engine pointed at the healthcare warehouse."""
     host     = os.getenv("APP_DB_HOST", "localhost")
-    port     = os.getenv("APP_DB_PORT", "5433")
+    port     = os.getenv("APP_DB_PORT", "5432")
     dbname   = os.getenv("APP_DB_NAME", "healthcare")
     user     = os.getenv("APP_DB_USER", "analytics")
     password = os.getenv("APP_DB_PASSWORD", "analytics")

@@ -91,8 +91,10 @@ def load_patients(df: pd.DataFrame, engine: Engine) -> int:
 
 def load_admissions(df: pd.DataFrame, engine: Engine) -> int:
     df = df.copy()
-    if "_loaded_at" in df.columns:
-        df = df.drop(columns=["_loaded_at"])
+    # Drop derived columns computed in transform — not part of raw schema
+    derived = ["_loaded_at", "los_hours", "los_days",
+               "admit_year", "admit_quarter", "admit_month", "admit_dow"]
+    df = df.drop(columns=[c for c in derived if c in df.columns])
     return upsert(df, "admissions", "raw", ["admission_id"], engine)
 
 
@@ -112,8 +114,8 @@ def load_diagnoses(df: pd.DataFrame, engine: Engine) -> int:
 
 def load_icu_stays(df: pd.DataFrame, engine: Engine) -> int:
     df = df.copy()
-    if "_loaded_at" in df.columns:
-        df = df.drop(columns=["_loaded_at"])
+    derived = ["_loaded_at", "icu_los_hours"]
+    df = df.drop(columns=[c for c in derived if c in df.columns])
     return upsert(df, "icu_stays", "raw", ["icustay_id"], engine)
 
 

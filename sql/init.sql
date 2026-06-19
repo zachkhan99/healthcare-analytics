@@ -70,6 +70,11 @@ CREATE TABLE IF NOT EXISTS raw.icd_codes (
     PRIMARY KEY (icd_code, icd_version)
 );
 
+-- ── Unique constraint for upsert support ────────────────────────────────────────
+ALTER TABLE raw.diagnoses
+    ADD CONSTRAINT uq_diagnoses_admission_icd
+    UNIQUE (admission_id, icd_code, icd_version);
+
 -- ── Indexes for join performance ──────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_admissions_patient   ON raw.admissions (patient_id);
 CREATE INDEX IF NOT EXISTS idx_diagnoses_admission  ON raw.diagnoses  (admission_id);
