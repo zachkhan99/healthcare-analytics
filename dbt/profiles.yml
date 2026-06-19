@@ -1,0 +1,13 @@
+healthcare:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('APP_DB_HOST', 'localhost') }}"
+      port: "{{ env_var('APP_DB_PORT', '5433') | int }}"
+      user: "{{ env_var('APP_DB_USER', 'analytics') }}"
+      password: "{{ env_var('APP_DB_PASSWORD', 'analytics') }}"
+      dbname: "{{ env_var('APP_DB_NAME', 'healthcare') }}"
+      schema: staging
+      threads: 4
+      connect_timeout: 30

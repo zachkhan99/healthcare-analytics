@@ -1,0 +1,130 @@
+version: 2
+
+# ── Sources ───────────────────────────────────────────────────────────────────
+sources:
+  - name: raw
+    schema: raw
+    description: "Landing zone tables populated by the Python ETL pipeline."
+    tables:
+      - name: patients
+        description: "One row per patient."
+        columns:
+          - name: patient_id
+            tests: [unique, not_null]
+          - name: gender
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['M', 'F', 'U']
+      - name: admissions
+        description: "One row per hospital admission."
+        columns:
+          - name: admission_id
+            tests: [unique, not_null]
+          - name: patient_id
+            tests: [not_null]
+          - name: hospital_expire_flag
+            tests:
+              - accepted_values:
+                  values: [0, 1]
+      - name: diagnoses
+        description: "ICD diagnosis codes per admission (multiple rows per admission)."
+        columns:
+          - name: admission_id
+            tests: [not_null]
+          - name: icd_code
+            tests: [not_null]
+          - name: icd_version
+            tests:
+              - accepted_values:
+                  values: [9, 10]
+      - name: icu_stays
+        description: "ICU stay records linked to admissions."
+        columns:
+          - name: icustay_id
+            tests: [unique, not_null]
+      - name: icd_codes
+        description: "ICD-10/9 reference codes."
+        columns:
+          - name: icd_code
+            tests: [not_null]
+
+# ── Staging models ────────────────────────────────────────────────────────────
+models:
+  - name: stg_patients
+    description: "Cleaned patient demographics with age bands."
+    columns:
+      - name: patient_id
+        tests: [unique, not_null]
+      - name: gender
+        tests:
+          - accepted_values:
+              values: ['M', 'F', 'U']
+      - name: age_group
+        tests:
+          - accepted_values:
+              values: ['<18', '18-29', '30-44', '45-59', '60-74', '75+']
+
+  - name: stg_admissions
+    description: "Cleaned admissions with LOS and time dimensions."
+    columns:
+      - name: admission_id
+        tests: [unique, not_null]
+      - name: patient_id
+        tests: [not_null]
+      - name: los_days
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+  - name: stg_diagnoses
+    description: "Cleaned ICD diagnosis records."
+    columns:
+      - name: admission_id
+        tests: [not_null]
+      - name: icd_code
+        tests: [not_null]
+
+  - name: stg_icu_stays
+    description: "Cleaned ICU stay records."
+    columns:
+      - name: icustay_id
+        tests: [unique, not_null]
+
+# ── Mart models ───────────────────────────────────────────────────────────────
+  - name: dim_patients
+    description: "Patient dimension with lifetime admission statistics."
+    columns:
+      - name: patient_id
+        tests: [unique, not_null]
+
+  - name: dim_diagnoses
+    description: "ICD diagnosis code dimension with usage counts."
+    columns:
+      - name: icd_code
+        tests: [not_null]
+
+  - name: fact_admissions
+    description: >
+      Central fact table. One row per admission.
+      KPIs: LOS, ICU hours, mortality, readmission flags.
+    columns:
+      - name: admission_id
+        tests: [unique, not_null]
+      - name: patient_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_patients')
+              field: patient_id
+
+  - name: mart_readmissions
+    description: "30-day readmission analysis. One row per index admission."
+    columns:
+      - name: index_admission_id
+        tests: [unique, not_null]
+
+  - name: mart_kpis
+    description: "Pre-aggregated KPIs for the BI dashboard."

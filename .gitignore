@@ -1,0 +1,10 @@
+.env
+data/raw/
+data/reports/
+airflow/logs/
+dbt/target/
+dbt/dbt_packages/
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/

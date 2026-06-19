@@ -1,0 +1,22 @@
+# Core
+pandas==2.2.2
+numpy==1.26.4
+psycopg2-binary==2.9.9
+SQLAlchemy==2.0.30
+python-dotenv==1.0.1
+
+# ETL / data quality
+great-expectations==0.18.15
+pyarrow==16.1.0
+
+# dbt
+dbt-core==1.8.3
+dbt-postgres==1.8.2
+
+# Airflow extras (installed separately in Docker but listed for reference)
+# apache-airflow[postgres]==2.9.1
+
+# Utilities
+faker==25.2.0
+tqdm==4.66.4
+loguru==0.7.2
