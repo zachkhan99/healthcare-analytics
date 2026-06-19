@@ -1,6 +1,8 @@
 # Healthcare Analytics Platform
 
-An end-to-end data engineering portfolio project demonstrating a production-grade analytics pipeline for hospital data.
+End-to-end healthcare analytics platform simulating hospital operations using a modern data stack.
+Built to demonstrate production-grade ETL, dimensional modeling, and automated KPI reporting for clinical decision-making.
+Focused on admissions, readmissions, mortality, and ICU utilization analytics.
 
 Built with Python · PostgreSQL · dbt · Apache Airflow · Docker
 
